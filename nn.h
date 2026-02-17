@@ -88,10 +88,11 @@ class Matrix {
 
   void fill(float x) { std::fill(data.begin(), data.end(), x); }
 
-  void randomize(float low, float high) {
-    float x = rand_float(low, high);
-    std::fill(data.begin(), data.end(), x);
-  }
+void randomize(float low, float high) {
+    for (auto& d : data) {
+        d = rand_float(low, high);  
+    }
+}
 
   void apply_activation(Activation act) {
     for (auto& d : data) {
