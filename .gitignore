@@ -8,3 +8,4 @@
 *.out
 a.out
 xor
+.DS_Store
