@@ -1,5 +1,5 @@
 #define NN_ACT nn::Activation::Relu 
-#include "nn.h"
+#include "../nn.h"
 #include <iostream>
 #include <vector>
 

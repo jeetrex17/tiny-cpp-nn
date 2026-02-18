@@ -1,5 +1,5 @@
 #define NN_BACKPROP_TRADITIONAL 1
-#include "nn.h"
+#include "../nn.h"
 #include <cstddef>
 #include <iostream>
 
