@@ -109,7 +109,6 @@ class Matrix {
     return *this;
   }
 
-  // TODO: Scalar Multiplication (operator*=)
 
   Matrix& operator*=(float scale) {
     assert(cols*rows == data.size());
@@ -146,6 +145,19 @@ class Matrix {
   }
 
   // TODO: Matrix Transpose
+    Matrix& transpose(){
+        assert(rows * cols == data.size());
+        std::vector<float> temp(data.size());
+        for(size_t i = 0; i < rows; i++){
+            for(size_t j = 0; j < cols ; j++){
+                temp[j*rows + i]= data[i*cols + j];
+            }
+        }
+        data = std::move(temp);
+        std::swap(rows, cols);
+
+        return *this;
+    }
 
   // TODO: Matrix Inverse
   void print(const std::string& name, size_t padding = 0) const {
