@@ -21,7 +21,7 @@ int main() {
     std::cout << "Initial bias:   " << nn.bs[0](0,0) << "\n";
     std::cout << "Initial cost:   " << nn.cost(train) << "\n\n";
 
-    size_t epochs = 15000;
+    size_t epochs = 1000;
     float learning_rate = 0.005f; 
 
     for (size_t i = 0; i < epochs; ++i) {
