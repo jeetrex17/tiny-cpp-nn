@@ -88,11 +88,11 @@ class Matrix {
 
   void fill(float x) { std::fill(data.begin(), data.end(), x); }
 
-void randomize(float low, float high) {
+  void randomize(float low, float high) {
     for (auto& d : data) {
-        d = rand_float(low, high);  
+      d = rand_float(low, high);
     }
-}
+  }
 
   void apply_activation(Activation act) {
     for (auto& d : data) {
@@ -109,7 +109,15 @@ void randomize(float low, float high) {
     return *this;
   }
 
-    //TODO: Scalar Multiplication (operator*=)
+  // TODO: Scalar Multiplication (operator*=)
+
+  Matrix& operator*=(float scale) {
+    assert(cols*rows == data.size());
+    for(auto& d : data) {
+            d *= scale;
+        }
+    return *this;
+  }
 
   static Matrix dot(const Matrix& a, const Matrix& b) {
     assert(a.cols == b.rows);
@@ -123,8 +131,8 @@ void randomize(float low, float high) {
     }
     return dst;
   }
-    //TODO: Multi-threaded Dot Product
-    // A faster version of dot() that uses std::thread
+  // TODO: Multi-threaded Dot Product
+  //  A faster version of dot() that uses std::thread
 
   // row index , start col idx and how many next cols u want is that nums_cols
   Matrix slice_row(size_t row_idx, size_t start_col, size_t num_cols) const {
@@ -137,9 +145,9 @@ void randomize(float low, float high) {
     return m;
   }
 
-    //TODO: Matrix Transpose
-    
-    //TODO: Matrix Inverse
+  // TODO: Matrix Transpose
+
+  // TODO: Matrix Inverse
   void print(const std::string& name, size_t padding = 0) const {
     std::string pad(padding, ' ');
     std::cout << pad << name << " = [\n";
@@ -178,7 +186,7 @@ class NeuralNetwork {
   Matrix& get_output() { return as.back(); }
 
   const Matrix& get_output() const { return as.back(); }
-void zero() {
+  void zero() {
     for (auto& a : as) {
       a.fill(0.0f);
     }
@@ -200,7 +208,8 @@ void zero() {
     for (auto& b : bs) {
       b.randomize(low, high);
     }
-  }  void print(const std::string& name = "nn") const {
+  }
+  void print(const std::string& name = "nn") const {
     std::cout << name << " = [\n";
     for (size_t i = 0; i < ws.size(); ++i) {
       ws[i].print("ws" + std::to_string(i), 4);
@@ -211,7 +220,8 @@ void zero() {
 
   void forward(Activation act = NN_ACT) {
     for (size_t i = 0; i < ws.size(); i++) {
-      as[i + 1] = Matrix::dot(as[i], ws[i]);  // matrix multiplicaton of weight and as
+      as[i + 1] =
+          Matrix::dot(as[i], ws[i]);  // matrix multiplicaton of weight and as
       as[i + 1] += bs[i];
       as[i + 1].apply_activation(act);
     }
