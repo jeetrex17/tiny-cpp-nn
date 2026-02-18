@@ -109,6 +109,8 @@ void randomize(float low, float high) {
     return *this;
   }
 
+    //TODO: Scalar Multiplication (operator*=)
+
   static Matrix dot(const Matrix& a, const Matrix& b) {
     assert(a.cols == b.rows);
     Matrix dst(a.rows, b.cols, 0.0f);
@@ -121,6 +123,8 @@ void randomize(float low, float high) {
     }
     return dst;
   }
+    //TODO: Multi-threaded Dot Product
+    // A faster version of dot() that uses std::thread
 
   // row index , start col idx and how many next cols u want is that nums_cols
   Matrix slice_row(size_t row_idx, size_t start_col, size_t num_cols) const {
@@ -133,6 +137,9 @@ void randomize(float low, float high) {
     return m;
   }
 
+    //TODO: Matrix Transpose
+    
+    //TODO: Matrix Inverse
   void print(const std::string& name, size_t padding = 0) const {
     std::string pad(padding, ' ');
     std::cout << pad << name << " = [\n";
