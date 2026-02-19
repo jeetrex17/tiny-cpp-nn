@@ -109,12 +109,11 @@ class Matrix {
     return *this;
   }
 
-
   Matrix& operator*=(float scale) {
-    assert(cols*rows == data.size());
-    for(auto& d : data) {
-            d *= scale;
-        }
+    assert(cols * rows == data.size());
+    for (auto& d : data) {
+      d *= scale;
+    }
     return *this;
   }
 
@@ -144,22 +143,81 @@ class Matrix {
     return m;
   }
 
-  // TODO: Matrix Transpose
-    Matrix& transpose(){
-        assert(rows * cols == data.size());
-        std::vector<float> temp(data.size());
-        for(size_t i = 0; i < rows; i++){
-            for(size_t j = 0; j < cols ; j++){
-                temp[j*rows + i]= data[i*cols + j];
-            }
-        }
-        data = std::move(temp);
-        std::swap(rows, cols);
-
-        return *this;
+  Matrix& transpose() {
+    assert(rows * cols == data.size());
+    std::vector<float> temp(data.size());
+    for (size_t i = 0; i < rows; i++) {
+      for (size_t j = 0; j < cols; j++) {
+        temp[j * rows + i] = data[i * cols + j];
+      }
     }
+    data = std::move(temp);
+    std::swap(rows, cols);
+
+    return *this;
+  }
 
   // TODO: Matrix Inverse
+  Matrix inverse() const {
+    if (rows != cols || rows == 0) {
+      return Matrix();
+    }
+
+    const size_t n = rows;
+    const float EPS = 1e-8f;
+
+    // Augmented matrix [A | I]
+    Matrix aug(n, 2 * n, 0.0f);
+
+    for (size_t i = 0; i < n; ++i) {
+      for (size_t j = 0; j < n; ++j) {
+        aug(i, j) = (*this)(i, j);
+      }
+      aug(i, n + i) = 1.0f;
+    }
+
+    for (size_t p = 0; p < n; ++p) {
+      size_t max_row = p;
+      for (size_t i = p + 1; i < n; ++i) {
+        if (std::abs(aug(i, p)) > std::abs(aug(max_row, p))) {
+          max_row = i;
+        }
+      }
+
+      if (max_row != p) {
+        for (size_t j = 0; j < 2 * n; ++j) {
+          std::swap(aug(p, j), aug(max_row, j));
+        }
+      }
+
+      if (std::abs(aug(p, p)) < EPS) {
+        return Matrix();  // not invertible
+      }
+
+      float pivot = aug(p, p);
+      for (size_t j = 0; j < 2 * n; ++j) {
+        aug(p, j) /= pivot;
+      }
+
+      for (size_t i = 0; i < n; ++i) {
+        if (i != p) {
+          float factor = aug(i, p);
+          for (size_t j = 0; j < 2 * n; ++j) {
+            aug(i, j) -= factor * aug(p, j);
+          }
+        }
+      }
+    }
+
+    Matrix inv(n, n, 0.0f);
+    for (size_t i = 0; i < n; ++i) {
+      for (size_t j = 0; j < n; ++j) {
+        inv(i, j) = aug(i, n + j);
+      }
+    }
+
+    return inv;
+  }
   void print(const std::string& name, size_t padding = 0) const {
     std::string pad(padding, ' ');
     std::cout << pad << name << " = [\n";
