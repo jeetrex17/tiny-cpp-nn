@@ -25,7 +25,7 @@ enum class Activation { Sigmoid, Relu, Tanh, Sin };
 
 inline float Sigmoid(float x) { return (1 / (1 + exp(-x))); }
 inline float Relu(float x) { return std::max(0.0f, x); }
-inline float Tanh(float x) { return ((exp(x) - exp(-x)) / (exp(x) + exp(-x))); }
+inline float Tanh(float x) { return std::tanh(x) ; }
 inline float Sin(float x) { return std::sin(x); }
 
 // Activation Function
@@ -45,16 +45,17 @@ inline float Actf(float x, Activation act = NN_ACT) {
 }
 
 // Derivative of the Activation Function
-inline float Dactf(float y, Activation dact = NN_ACT) {
+// y = activated output, z = pre-activation input
+inline float Dactf(float y, float z, Activation dact = NN_ACT) {
   switch (dact) {
     case Activation::Sigmoid:
       return y * (1.0f - y);
     case Activation::Relu:
-      return y >= 0 ? 1.0f : NN_RELU_PARAM;
+      return z > 0 ? 1.0f : NN_RELU_PARAM;
     case Activation::Tanh:
       return 1.0f - y * y;
     case Activation::Sin:
-      return std::cos(std::asin(y));
+      return std::cos(z);
   }
   assert(false && "Unreachable");
   return 0.0f;
@@ -239,6 +240,7 @@ class NeuralNetwork {
   std::vector<Matrix> ws;  // Weights
   std::vector<Matrix> bs;  // Biases
   std::vector<Matrix> as;  // Activations
+  std::vector<Matrix> zs;  // Pre-activations (before activation function)
 
   NeuralNetwork(const std::vector<size_t>& architecture) : arch(architecture) {
     assert(arch.size() > 0);
@@ -249,6 +251,7 @@ class NeuralNetwork {
       ws.emplace_back(arch[i - 1], arch[i]);
       bs.emplace_back(1, arch[i]);
       as.emplace_back(1, arch[i]);
+      zs.emplace_back(1, arch[i]);
     }
   }
 
@@ -265,6 +268,9 @@ class NeuralNetwork {
     }
     for (auto& b : bs) {
       b.fill(0.0f);
+    }
+    for (auto& z : zs) {
+      z.fill(0.0f);
     }
   }
 
@@ -293,6 +299,7 @@ class NeuralNetwork {
       as[i + 1] =
           Matrix::dot(as[i], ws[i]);  // matrix multiplicaton of weight and as
       as[i + 1] += bs[i];
+      zs[i] = as[i + 1];  // save pre-activation values for backprop
       as[i + 1].apply_activation(act);
     }
   }
@@ -355,7 +362,8 @@ class NeuralNetwork {
         for (size_t j = 0; j < as[l].cols; ++j) {
           float a = as[l](0, j);
           float da = g.as[l](0, j);
-          float qa = Dactf(a, NN_ACT);
+          float z = zs[l - 1](0, j);  // pre-activation value
+          float qa = Dactf(a, z, NN_ACT);
 
           g.bs[l - 1](0, j) += s * da * qa;
 
